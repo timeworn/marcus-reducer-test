@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, {useContext, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import ApiService from '../services/api.service';
-import useAuth from '../hooks/useAuth';
+import {AuthContext} from "../Providers";
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { saveAuth } = useAuth();
+  const { handleAuthLogin } = useContext(AuthContext);
   const navigate = useNavigate();
+
   const onLogin = async () => {
     if (!email || !password) {
       setError('Email and password can\'t be empty');
@@ -19,7 +21,7 @@ export default function LoginForm() {
       setError('');
       const token = await ApiService.login(email, password);
       if (token) {
-        saveAuth(token);
+        handleAuthLogin({email, token});
         navigate('/profile');
       }
     } catch (e) {

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Navigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+
+import {AuthContext} from "../Providers";
 
 const GuardedComponent = ({ component }: any) => {
-  const { authToken } = useAuth();
-  return authToken ? component : <Navigate replace to='/'/>
+  const { currentUser } = useContext(AuthContext);
+  return currentUser.token ? component : <Navigate replace to='/'/>
 }
 
 export default GuardedComponent;

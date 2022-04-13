@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
-import { LOCAL_STORAGE_AUTH_TOKEN } from './consts';
+import React, { useReducer } from 'react';
+import {AuthReducer, initialState} from "./store/actions/reducers/authReducer";
+import * as ACTIONS from "./store/actions/actions";
 
-export const AuthContext = React.createContext({ authToken: '', saveAuth: (token: string) => {} });
+export const AuthContext = React.createContext({ currentUser: {email: '', token: ''}, handleAuthLogin: (userInfo: userInfo) => {}, handleAuthLogout: () => {} });
 
 const AuthContextProvider: React.FC = ({ children }) => {
-  const [authToken, setAuthToken] = useState(localStorage.getItem(LOCAL_STORAGE_AUTH_TOKEN) || '');
-  const saveAuth = (token: string) => {
-    localStorage.setItem(LOCAL_STORAGE_AUTH_TOKEN, token);
-    setAuthToken(token);
-  }
-  return <AuthContext.Provider value={{ authToken, saveAuth }}>{children}</AuthContext.Provider>;
+  const [currentUser, dispatch] = useReducer(AuthReducer, initialState);
+
+  const handleLogin = (data: userInfo) => {
+    localStorage.setItem('currentUser', JSON.stringify(data))
+    dispatch(ACTIONS.login(data));
+  };
+
+  const handleLogout = () => {
+    dispatch(ACTIONS.logout());
+    localStorage.removeItem('currentUser')
+  };
+
+  return <AuthContext.Provider value={{ currentUser, handleAuthLogin: (userInfo) => handleLogin(userInfo), handleAuthLogout: () => handleLogout() }}>{children}</AuthContext.Provider>;
 }
 
 const Providers: React.FC = ({ children }) => {
